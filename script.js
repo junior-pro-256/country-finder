@@ -12,9 +12,9 @@ async function searchCountry() {
   errorDiv.classList.add("hidden");
 
   try {
-    const response = await fetch(
-      `https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`
-    );
+    // Uses CORS proxy to bypass Cloudflare/Vercel header block on restcountries.com
+    const targetUrl = `https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`;
+    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -47,7 +47,7 @@ function displayCountry(country) {
   const languages = country.languages ? Object.values(country.languages).join(", ") : "N/A";
 
   resultDiv.innerHTML = `
-    <div class="flag">${country.flag}</div>
+    <div class="flag">${country.flag || ""}</div>
     <h2 class="country-name">${country.name.common}</h2>
     
     <div class="info-grid">
