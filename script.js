@@ -12,14 +12,27 @@ async function searchCountry() {
   errorDiv.classList.add("hidden");
 
   try {
-    const response = await fetch(`https://restcountries.com/v3.1/name/${query}`);
+    const response = await fetch(
+      `https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`
+    );
 
-    if (!response.ok) throw new Error("Not found");
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Not found");
+      }
+      throw new Error(`Server error: ${response.status}`);
+    }
 
     const data = await response.json();
+    
+    if (!data || data.length === 0) {
+      throw new Error("Not found");
+    }
+
     console.log(data[0]);
     displayCountry(data[0]);
   } catch (error) {
+    console.error("Fetch error:", error);
     errorDiv.classList.remove("hidden");
   }
 }
