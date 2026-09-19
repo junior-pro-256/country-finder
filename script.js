@@ -3,40 +3,32 @@ const searchBtn = document.getElementById("searchBtn");
 const resultDiv = document.getElementById("result");
 const errorDiv = document.getElementById("error");
 
-async function searchCountry() {
-  const query = searchInput.value.trim();
-  if (!query) return;
-
-  // hide previous results
-  resultDiv.classList.add("hidden");
-  errorDiv.classList.add("hidden");
-
+async function searchCountry(countryName) {
   try {
-    // Uses CORS proxy to bypass Cloudflare/Vercel header block on restcountries.com
-    const targetUrl = `https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`;
-    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+    // 1. Fetch directly from REST Countries API without AllOrigins proxy
+    const response = await fetch(
+      `https://restcountries.com/v3.1/name/${encodeURIComponent(countryName)}`
+    );
 
+    // 2. Handle HTTP errors (e.g., 404 if country isn't found)
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error("Not found");
+        throw new Error('Country not found');
       }
       throw new Error(`Server error: ${response.status}`);
     }
 
     const data = await response.json();
-    
-    if (!data || data.length === 0) {
-      throw new Error("Not found");
-    }
+    console.log('Country data:', data);
 
-    console.log(data[0]);
-    displayCountry(data[0]);
+    // Render your data here...
+    return data;
+
   } catch (error) {
-    console.error("Fetch error:", error);
-    errorDiv.classList.remove("hidden");
+    console.error('Fetch error:', error.message);
+    // Display error message in your UI
   }
 }
-
 function displayCountry(country) {
   const currencies = country.currencies
     ? Object.values(country.currencies)
